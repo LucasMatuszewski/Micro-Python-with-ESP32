@@ -11,8 +11,12 @@ s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 s.bind(('', 80)) # bind the socket to an IP address ('' or 'localhost') and port (80, but normally use >3000)
 s.listen(5) # enable to accept connections with maximum 5 queued connections.
 
+
 def sensorsThread():
-    global oled
+    global temp_string
+    global hum_string
+    global pres_string
+
     counter = 0
     temp_sum = 0
     hum_sum = 0
@@ -95,7 +99,7 @@ def serverThread():
             conn.settimeout(None)
             request = str(request)
             print('Content = %s' % request)
-            response = web_page_weather()
+            response = web_page_weather(temp_string, hum_string, pres_string)
             conn.send('HTTP/1.1 200 OK\n')
             conn.send('Content-Type: text/html\n')
             conn.send('Connection: close\n\n')
