@@ -29,6 +29,7 @@ gc.collect()
 # import sensor library and set Pins for I2C
 import BME280
 i2c_sensor = SoftI2C(scl=Pin(22), sda=Pin(21), freq=10000)
+bme = BME280.BME280(i2c=i2c_sensor)
 
 # import OLED display library, set Pins for I2C and activate a screen
 import ssd1306
