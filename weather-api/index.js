@@ -27,10 +27,12 @@ app.get("/weather/limit/:limit", async (req, res) => {
   const limit = parseInt(req.params.limit);
   const query = weatherDb.limit(limit);
   const querySnapshot = await query.get();
-  console.log("querySnapshot.docs", querySnapshot.docs);
-  // if (querySnapshot.size > 0) {
-  if (querySnapshot.exists) {
-    res.status(200).json(querySnapshot.docs);
+  // if (querySnapshot.exists) { // why it doesn't work?
+  if (querySnapshot.size > 0) {
+    // .docs are not simple objects, they contains also prototypes, metadata & timestamps
+    // We iterate every doc.data() to retrieve all fields in the document as an simple Object.
+    const weatherData = querySnapshot.docs.map((doc) => doc.data());
+    res.status(200).json(weatherData);
   } else {
     res.status(404).json({ status: `Data not Found` });
   }
@@ -40,11 +42,11 @@ app.get("/weather/place/:placeId", async (req, res) => {
   const placeId = req.params.placeId;
   const query = weatherDb.where("placeId", "==", placeId);
   const querySnapshot = await query.get();
-  console.log("querySnapshot.docs", querySnapshot.docs);
   if (querySnapshot.size > 0) {
-    res.status(200).json(querySnapshot.docs);
+    const weatherData = querySnapshot.docs.map((doc) => doc.data());
+    res.status(200).json(weatherData);
   } else {
-    res.status(404).json({ status: `${placeId} not Found` });
+    res.status(404).json({ status: `Weather data for ${placeId} not Found` });
   }
 });
 
@@ -53,7 +55,8 @@ app.post("/weather", async (req, res) => {
   // It works on triggered Build Time but it's not available in free tier?
   // We can use for free this solution:
   // https://stackoverflow.com/questions/52840187/how-to-set-environment-variables-using-google-cloud-build-or-other-method-in-goo
-  // Or we can use variables manually adding new revision: https://cloud.google.com/run/docs/configuring/environment-variables#console
+
+  // Or we can add variables manually adding new revision: https://cloud.google.com/run/docs/configuring/environment-variables#console
   if (req.body.secretApiKey === process.env.API_KEY) {
     const data = {
       temperature: req.body.temperature,
