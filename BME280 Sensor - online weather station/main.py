@@ -13,6 +13,12 @@ s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 s.bind(('', 80)) # bind the socket to an IP address ('' or 'localhost') and port (80, but normally use >3000)
 s.listen(5) # enable to accept connections with maximum 5 queued connections.
 
+######
+# @TODO refactor to less imperative & more DRY style using functions, like here:
+# https://blog.miguelgrinberg.com/post/micropython-and-the-internet-of-things-part-vi-working-with-a-screen
+# Add better error handling, move pin numbers and configs to config.py file
+# Turn off display on button press - display.poweroff()
+######
 
 def sensorsThread():
     global temp_string
@@ -24,9 +30,10 @@ def sensorsThread():
     hum_sum = 0
     pres_sum = 0
 
+    # @TODO switch 'place' with button or from settings fetched from online API (if available)
     current_place = 'office'
-    weather_api_url = 'https://esp32-weather-api-4o7ic5bk2q-ue.a.run.app/weather'
-    from secrets import api_secret_key # create secrets.py file with secret variables (not in GIT Repo)
+    api_status = ''
+    from secrets import weather_api_key, weather_api_url # create secrets.py file with secret variables (not in GIT Repo)
 
     while True:
         try:
@@ -38,7 +45,7 @@ def sensorsThread():
 
     #         SHOW ON OLED SCREEN - oled is activated in boot.py
             oled.fill(0)
-            if temp_string != '0.00C':
+            if temp_string != '0.00C': # @TODO switch variable without repeating oled.text 2 times
                 oled.text('Temp: ' + temp_string, 0, 5, 1)
             else:
                 oled.text('Temp: ---', 0, 5, 1)
@@ -51,6 +58,11 @@ def sensorsThread():
             else:
                 oled.text('Pres: ---', 0, 35, 1)
             oled.text('Place: ' + current_place, 0, 50, 1)
+            # @TODO display icon, tutorial: https://blog.miguelgrinberg.com/post/micropython-and-the-internet-of-things-part-vi-working-with-a-screen
+            if api_status == 'OK':
+                oled.text('OK', 110, 5, 1)
+            elif api_status != '':
+                oled.text('X', 110, 5, 1)
             oled.show()
 
     #         GET DATA FROM SENSOR AS FLOATS (SHOULD I SEND RAW INTEGERS TO A SERVER?)
@@ -65,7 +77,7 @@ def sensorsThread():
             pres_sum += pres
 
     #         EVERY X times send avarage data to an API (TODO, print for now)
-            if counter == 120: # counter * sleep = delay (e.g. 120 * 5s = 600s = 10m
+            if counter == 180: # counter * sleep = delay (e.g. 120 * 5s = 600s = 10m
                 temp_average = round(temp_sum/counter, 2)
                 hum_average = round(hum_sum/counter, 2)
                 pres_average = round(pres_sum/counter, 2)
@@ -77,12 +89,13 @@ def sensorsThread():
                 weather_data["temperature"] = temp_average
                 weather_data["humidity"] = hum_average
                 weather_data["pressure"] = pres_average
-                weather_data["placeId"] = current_place # @TODO switch place variable on button
-                weather_data["secretApiKey"] = api_secret_key
+                weather_data["placeId"] = current_place # @TODO switch place variable on button or settings from API
+                weather_data["secretApiKey"] = weather_api_key # @TODO auth with token in header?
                 weather_json = ujson.dumps(weather_data)
-                print('Weather Json: ', weather_json)
+                # https://github.com/micropython/micropython-lib/blob/master/urequests/urequests.py#L103
+                # post(url, data=None, json=None, headers={}, stream=None)
                 response = urequests.post(weather_api_url, data = weather_json, headers = {'Content-Type': 'application/json'})
-                print('API response: ', response.text) # @TODO show check ikon for OK 200 and X for other responses
+                api_status = response.text # show on OLED check icon for OK 200 and X for other responses
                 response.close()
                 
                 counter = 0
