@@ -1,7 +1,7 @@
 {
   "name": "weather-api",
   "description": "API for weather data from ESP32 and BME280 sensor",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "main": "index.js",
   "scripts": {
@@ -13,6 +13,7 @@
   "author": "Lukasz Matuszewski",
   "license": "Apache-2.0",
   "dependencies": {
-    "express": "^4.17.1"
+    "express": "^4.17.1",
+    "@google-cloud/firestore": "^4.9.8"
   }
 }
