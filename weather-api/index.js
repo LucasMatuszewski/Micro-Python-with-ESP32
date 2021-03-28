@@ -24,7 +24,7 @@ app.get("/", (req, res) => {
 const weatherDb = db.collection("weather-data");
 
 app.get("/weather/limit/:limit", async (req, res) => {
-  const limit = req.params.limit;
+  const limit = parseInt(req.params.limit);
   const query = weatherDb.limit(limit);
   const querySnapshot = await query.get();
   // if (querySnapshot.size > 0) {
