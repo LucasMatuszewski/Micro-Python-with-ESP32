@@ -25,9 +25,12 @@ const weatherDb = db.collection("weather-data");
 
 app.get("/weather/limit/:limit", async (req, res) => {
   const limit = parseInt(req.params.limit);
-  const query = weatherDb.limit(limit);
+  const query = weatherDb.orderBy("created", "desc").limit(limit);
   const querySnapshot = await query.get();
-  // if (querySnapshot.exists) { // why it doesn't work?
+  // if (!querySnapshot.empty) { // .empty property works with Firestore
+  // Dock for QuestySnapshot object: https://googleapis.dev/nodejs/firestore/2.2.3/QuerySnapshot.html
+  // Dock for querySnapshot.docs: https://googleapis.dev/nodejs/firestore/2.2.3/QueryDocumentSnapshot.html
+  // if (querySnapshot.exists) { // .exists is doc property, doesn't work for querySnapshot
   if (querySnapshot.size > 0) {
     // .docs are not simple objects, they contains also prototypes, metadata & timestamps
     // We iterate every doc.data() to retrieve all fields in the document as an simple Object.
@@ -40,7 +43,9 @@ app.get("/weather/limit/:limit", async (req, res) => {
 
 app.get("/weather/place/:placeId", async (req, res) => {
   const placeId = req.params.placeId;
-  const query = weatherDb.where("placeId", "==", placeId);
+  const query = weatherDb
+    .where("placeId", "==", placeId)
+    .orderBy("created", "desc");
   const querySnapshot = await query.get();
   if (querySnapshot.size > 0) {
     const weatherData = querySnapshot.docs.map((doc) => doc.data());
