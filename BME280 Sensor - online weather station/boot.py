@@ -49,7 +49,7 @@ station.connect(ssid, password)
 while station.isconnected() == False:
   pass
 
-print('Connection successful')
+print('WiFi connection successful')
 print(station.ifconfig()) # print network interface parameters (lik ESP32 IP address)
 
 # we should address pins in Boot file also

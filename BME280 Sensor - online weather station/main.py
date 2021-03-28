@@ -3,6 +3,8 @@
 # https://randomnerdtutorials.com/micropython-bme280-esp32-esp8266/
 
 import _thread # to use two infinite loops we need to use two threads of our CPU (ESP32 has 2)
+import urequests # to send HTTP requests
+import ujson # to convert Python dictionary to JSON format
 from time import sleep
 from web_pages import web_page_weather
 
@@ -22,6 +24,10 @@ def sensorsThread():
     hum_sum = 0
     pres_sum = 0
 
+    current_place = 'office'
+    weather_api_url = 'https://esp32-weather-api-4o7ic5bk2q-ue.a.run.app/weather'
+    from secrets import api_secret_key # create secrets.py file with secret variables (not in GIT Repo)
+
     while True:
         try:
     #         GET DATA FROM SENSOR AS A STRING
@@ -33,17 +39,18 @@ def sensorsThread():
     #         SHOW ON OLED SCREEN - oled is activated in boot.py
             oled.fill(0)
             if temp_string != '0.00C':
-                oled.text('Temp: ' + temp_string, 0, 10, 1)
+                oled.text('Temp: ' + temp_string, 0, 5, 1)
             else:
-                oled.text('Temp: ---', 0, 10, 1)
+                oled.text('Temp: ---', 0, 5, 1)
             if hum_string != '0.00%':
-                oled.text('Hum: ' + hum_string, 0, 25, 1)
+                oled.text('Hum: ' + hum_string, 0, 20, 1)
             else:
-                oled.text('Hum: ---', 0, 25, 1)
+                oled.text('Hum: ---', 0, 20, 1)
             if pres_string != '0.00hPa':
-                oled.text('Pres: ' + pres_string, 0, 40, 1)
+                oled.text('Pres: ' + pres_string, 0, 35, 1)
             else:
-                oled.text('Pres: ---', 0, 40, 1)
+                oled.text('Pres: ---', 0, 35, 1)
+            oled.text('Place: ' + current_place, 0, 50, 1)
             oled.show()
 
     #         GET DATA FROM SENSOR AS FLOATS (SHOULD I SEND RAW INTEGERS TO A SERVER?)
@@ -58,13 +65,25 @@ def sensorsThread():
             pres_sum += pres
 
     #         EVERY X times send avarage data to an API (TODO, print for now)
-            if counter == 10:
+            if counter == 120: # counter * sleep = delay (e.g. 120 * 5s = 600s = 10m
                 temp_average = round(temp_sum/counter, 2)
                 hum_average = round(hum_sum/counter, 2)
                 pres_average = round(pres_sum/counter, 2)
                 print('Temperature: ', temp_average)
                 print('Humidity: ', hum_average)
                 print('Pressure: ', pres_average)
+                
+                weather_data = {} # we use disctionary data structure
+                weather_data["temperature"] = temp_average
+                weather_data["humidity"] = hum_average
+                weather_data["pressure"] = pres_average
+                weather_data["placeId"] = current_place # @TODO switch place variable on button
+                weather_data["secretApiKey"] = api_secret_key
+                weather_json = ujson.dumps(weather_data)
+                print('Weather Json: ', weather_json)
+                response = urequests.post(weather_api_url, data = weather_json, headers = {'Content-Type': 'application/json'})
+                print('API response: ', response.text) # @TODO show check ikon for OK 200 and X for other responses
+                response.close()
                 
                 counter = 0
                 temp_sum = 0
