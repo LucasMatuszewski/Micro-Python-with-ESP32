@@ -31,7 +31,7 @@ app.get("/weather/limit/:limit", async (req, res) => {
   if (querySnapshot.exists) {
     res.status(200).json(querySnapshot.docs);
   } else {
-    res.status(404).json({ status: `${placeID} not Found` });
+    res.status(404).json({ status: `Data not Found` });
   }
 });
 
