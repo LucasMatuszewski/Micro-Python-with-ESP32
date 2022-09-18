@@ -1,4 +1,6 @@
 # This file is executed on every boot (including wake-boot from deepsleep)
+#import esp
+#esp.osdebug(None)
 #import webrepl
 #webrepl.start()
 
@@ -55,4 +57,4 @@ print(station.ifconfig()) # print network interface parameters (lik ESP32 IP add
 # we should address pins in Boot file also
 # sensor = dht.DHT22(Pin(14))
 # sensor = dht.DHT11(Pin(14))
-led = Pin(2, Pin.OUT) # Create a Pin object that refers to the ESP32 GPIO 2
+led_blue = Pin(2, Pin.OUT) # Create a Pin object that refers to the ESP32 GPIO 2 === build in blue LED 

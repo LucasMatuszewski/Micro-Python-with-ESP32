@@ -125,7 +125,7 @@ def serverThread():
             
             
             # EVERY X times send avarage data to an API
-            if counter == 180: # counter * sleep = delay (e.g. 120 * 5s = 600s = 10m
+            if counter == 10: # counter * sleep = delay (e.g. 120 * 5s = 600s = 10m
                 temp_average = round(temp_sum/counter, 2)
                 hum_average = round(hum_sum/counter, 2)
                 pres_average = round(pres_sum/counter, 2)
@@ -141,18 +141,22 @@ def serverThread():
                 weather_data["secretApiKey"] = weather_api_key # @TODO auth with token in header?
                 weather_json = ujson.dumps(weather_data)
                 try:
+                    led_blue.value(1) # turn on build in Blue LED while sending to API
                     # https://github.com/micropython/micropython-lib/blob/master/urequests/urequests.py#L103
                     # post(url, data=None, json=None, headers={}, stream=None)
                     response = urequests.post(weather_api_url, data = weather_json, headers = {'Content-Type': 'application/json'})
                     api_status = response.text # show on OLED "OK" for OK 200 and X for other responses
                     # print('Response: ', response.__dict__)
                     # __dict__ prints: {'encoding': 'utf-8', 'raw': <_SSLSocket 3ffec310>, 'reason': b'OK', '_cached': None, 'status_code': 200}
+                    if response.text or response.status_code: # turn off Blue LED when we have any response
+                        led_blue.value(0)
                     response.close()
                 except OSError as e:
                     print('---- API Error: ', e) # 16 == "device or resource busy"
                     oled.fill(0)
                     oled.text('API Error', 0, 10, 1)
                     oled.show()
+                    led_blue.value(0)
                     api_status = 'Error'
                     counter = 0
                     temp_sum = 0

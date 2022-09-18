@@ -9,8 +9,12 @@ My IOT Weather Station build with:
 ## Main features:
 
 - 2 separate threads with `_thread` to use 2-cores:
-  - 1st for data collecting, sending to API (every 15 minutes) and displaying on OLED screen (every 5 seconds),
-  - 2nd for Web Server with sockets.
+  - 1st for data collecting and displaying on OLED screen (every 5 seconds),
+  - 2nd for ~~Web Server with sockets~~ sending to API (every 15 minutes).
+    - Web Server commented to save memory and fix the Error 16 (device or resource busy)
+    - sending to API blocked main code (sensors & oled) for a while so moved to 2nd thread
+    - Build in blue LED turns on while sending to API
+    - Sends to API average sensor values for last 15 minutes (but maybe sending last values will be better for performance and memory?)
 - **REST API** to save data from ESP32 in data base:
   - **Firestore** DB because it's in GCN's _free tier_ and I wanted to learn it
   - SQL querying will be more suitable for this so maybe I will refactor it in future
