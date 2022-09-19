@@ -15,6 +15,10 @@ My IOT Weather Station build with:
     - sending to API blocked main code (sensors & oled) for a while so moved to 2nd thread
     - Build in blue LED turns on while sending to API
     - Sends to API average sensor values for last 15 minutes (but maybe sending last values will be better for performance and memory?)
+- Build-in button turns off displaying data on the OLED (to don't burn-in the screen)
+  - we don't power off the OLED to still display errors (but maybe should change it for energy efficiency when running on battery?)
+- Error counters to soft restart a device (on 5th error) or exit while loop on 10th
+  - on any error or infinite loop I couldn't send files to fix the bug and have to erase an old flash and flash with MicroPython again (maybe there is a better way?)
 - **REST API** to save data from ESP32 in data base:
   - **Firestore** DB because it's in GCN's _free tier_ and I wanted to learn it
   - SQL querying will be more suitable for this so maybe I will refactor it in future

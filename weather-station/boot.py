@@ -58,3 +58,4 @@ print(station.ifconfig()) # print network interface parameters (lik ESP32 IP add
 # sensor = dht.DHT22(Pin(14))
 # sensor = dht.DHT11(Pin(14))
 led_blue = Pin(2, Pin.OUT) # Create a Pin object that refers to the ESP32 GPIO 2 === build in blue LED 
+button_boot = Pin(0, Pin.IN) # Pin object referring to the ESP32 GPIO 0 === build in Boot Button
