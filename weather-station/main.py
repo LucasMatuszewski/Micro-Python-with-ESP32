@@ -50,8 +50,8 @@ def sensorsThread():
             pres_string = bme.pressure
 
             # SHOW ON OLED SCREEN - oled is activated in boot.py
+            oled.fill(0) # to clear the oled screen before displaying text (fill it all in black == off)
             if oled_on:
-                oled.fill(0) # to clear the oled screen before displaying text (fill it all in black == off)
                 if temp_string != '0.00C': # @TODO switch variable without repeating oled.text 2 times
                     oled.text('Temp: ' + temp_string, 0, 5, 1)
                 else:
@@ -71,7 +71,7 @@ def sensorsThread():
                     oled.text('OK', 110, 5, 1)
                 elif api_status != '':
                     oled.text('X', 110, 5, 1)
-                oled.show()
+            oled.show() # always use fill(0) and show() (to clear error message when oled_on is False)
 
             # GET DATA FROM SENSOR AS FLOATS (SHOULD I SEND RAW INTEGERS TO A SERVER?)
             temp = bme.read_temperature()/100

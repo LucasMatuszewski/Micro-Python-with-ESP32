@@ -19,9 +19,9 @@ My IOT Weather Station build with:
   - we don't power off the OLED to still display errors (but maybe should change it for energy efficiency when running on battery?)
 - Error counters to soft restart a device (on 5th error) or exit while loop on 10th
   - on any error or infinite loop I couldn't send files to fix the bug and have to erase an old flash and flash with MicroPython again (maybe there is a better way?)
-- **REST API** to save data from ESP32 in data base:
+- **REST API** to save data from ESP32 in database:
   - **Firestore** DB because it's in GCN's _free tier_ and I wanted to learn it
-  - SQL querying will be more suitable for this so maybe I will refactor it in future
+  - SQL querying will be more suitable for this so maybe I will refactor it in the future
   - basic POST security with secret in ENV variable
   - basic endpoints to get data by place (office, home, etc.) and with limit
 - Served from **Docker** container with Google **Cloud Run**
@@ -30,5 +30,5 @@ My IOT Weather Station build with:
 ## My plans:
 
 - More endpoints to filter data, make statistics (by hour of day, day of week, periods), prepare them for charts and analysis.
-- React App to display data with filters and charts to analyse trends (by day of week, by hour of day etc).
+- React App to display data with filters and charts to analyze trends (by day of week, by hour of day etc).
 - Web sockets to update chart live? PWA for offline capabilities?
